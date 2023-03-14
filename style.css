@@ -1,0 +1,95 @@
+body {
+    background-color: skyblue;
+}
+
+.main {
+    display: grid;
+    row-gap: 0px;
+    column-gap: 0px;
+    min-width: 50%;
+    max-width: 60%;
+    border-radius: 10px;
+    margin: auto;
+}
+
+.display {
+    display: block;
+    background-color: black;
+    color: whitesmoke;
+    font-size: x-large;
+    font-weight: bold;
+    text-align: end;
+    text-overflow: ellipsis;
+    height: 15vh;
+    margin: auto 0;
+    padding: 20px 20px;
+    border-radius: 10px 10px 0px 0px;
+}
+
+.display > .topDisplay {
+    line-height: 10px;
+    font-weight: lighter;
+    font-size: medium;
+}
+
+.display > .mainDisplay {
+    line-height: 150px;
+    font-weight: bolder;
+    user-select: all;
+}
+
+.button-container {
+    display: grid;
+    grid-template-columns: 25% 25% 25% 25%;
+    grid-template-rows: 20%;
+    row-gap: 0px;
+    column-gap: 0px;
+}
+
+.button {
+    display: block;
+    background-color: whitesmoke;
+    color: #121212;
+    font-size: medium;
+    font-weight: bold;
+    text-align: center;
+    padding: 20px 0;
+    border: 1px solid black;
+    text-align: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.equal {
+    grid-row-start: 2;
+    grid-row-end: 6;
+    grid-column-start: 4;
+    grid-column-end: 5;
+    height: auto;
+    background-color: orangered;
+    line-height: 200px;
+}
+
+.bottomLeftEnd{
+    border-bottom-left-radius: 10px;
+}
+
+.bottomRightEnd{
+    border-bottom-right-radius: 10px;
+}
+
+.operator:not(:last-child) {
+    background-color: #a9a9a9;
+}
+
+button:active {
+    background-color: #dddddd;
+}
+
+button.operator:active {
+    background-color: #9c9c9c;
+}
+
+button.equal:active {
+    background-color: rgb(212, 57, 0);
+}
