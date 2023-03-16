@@ -1,116 +1,78 @@
-console.log("Calculator Loaded!")
+console.log("Calculator Script Started!")
 
 class Calculator {
 
     constructor() {
-        this.topDisplay = "";
-        this.operator = "";
-        this.operand = "0";
-        this.operand1 = "0";
-        this.operand2 = "0";
+        this.queue = undefined;
+        this.result = undefined;
         this.mainDisplay = "0";
+        this.topDisplay = "";
     }
 
-    reset() {
-        this.topDisplay = "";
-        this.operator = "";
-        this.operand = "0";
-        this.operand1 = "0";
-        this.operand2 = "0";
-        this.mainDisplay = "0";
-    }
-
-    display(input) {
+    display() {
         console.log("In Display")
-        if (input != undefined && input.length > 0) {
-            calc.mainDisplay = input;
-        }
-        else if (this === undefined || this.mainDisplay === undefined) {
-            calc.mainDisplay = "";
-        }
-        else if (calc.operator != "="){
-            calc.mainDisplay = calc.operand.toString();
-        }
-        console.log("mainDisplay: ", this.mainDisplay)
+        console.log("\ttopDisplay: ", this.topDisplay);
+        console.log("\tmainDisplay: ", this.mainDisplay);
         document.getElementsByClassName("topDisplay")[0].innerHTML = this.topDisplay;
         document.getElementsByClassName("mainDisplay")[0].innerHTML = this.mainDisplay;
     }
 
-    perform_operation(expr1, expr2, operator) {
-        switch(operator) {
+    reset() {
+        this.queue = undefined;
+        this.result = undefined;
+        this.mainDisplay = "0";
+        this.topDisplay = "";
+        if(check(this.queue)) {
+            this.queue = ["0"];
+        }
+        this.mainDisplay = this.queue[0];
+        console.log("Reseted!!");
+    }
+    
+    calculate(exp1, opr, exp2) {
+        switch(opr) {
             case "+":
-                calc.mainDisplay = (parseFloat(expr1) + parseFloat(expr2)).toString();
-                break;
+                this.result = (parseFloat(exp1) + parseFloat(exp2)).toString();
+                return this.result;
             case "-":
-                calc.mainDisplay = (parseFloat(expr1) - parseFloat(expr2)).toString();
-                break;
+                this.result = (parseFloat(exp1) - parseFloat(exp2)).toString();
+                return this.result;
             case "x":
-                calc.mainDisplay = (parseFloat(expr1) * parseFloat(expr2)).toString();
-                break;
+                this.result = (parseFloat(exp1) * parseFloat(exp2)).toString();
+                return this.result;
             case "/":
-                calc.mainDisplay = (parseFloat(expr1) / parseFloat(expr2)).toString();
-                break;
-            case "=":
-                calc.mainDisplay = (parseFloat(expr1)).toString();
-                break;
-            case "AC": // All CLear
-                calc.reset();
-                return;
-            case "CE": // Clear Entry
-                calc.operand = "0";
-                return;
+                this.result = (parseFloat(exp1) / parseFloat(exp2)).toString();
+                return this.result;
         }
     }
-
+    
+    calculate_operation() {
+        var result = "0";
+        if (this.queue.length <= 2) { // 1=, 5=;  
+            result = this.queue[0];
+            return result; // 1, 5;
+        }
+        // 1+2=, 3+4-5=, ...;
+        var exp1 = this.queue[0];
+        var op = this.queue[1];
+        var exp2 = this.queue[2];
+        for (var i=3; i<this.queue.length; i+=2) { // 3, 5 // Iterating through operators
+            if (i == this.queue.length - 1) {
+                return this.calculate(exp1, op, exp2); // 1+2->3, 7-5->2
+            }
+            result = this.calculate(exp1, op, exp2); // 3+4, 
+            exp1 = result; // 7;
+            op = this.queue[i]; // -;
+            exp2 = this.queue[i+1]; // 5;
+        }
+        return result;    
+    }
 }
 
-function display_2(calc, input) {
-    if (calc === undefined || input === undefined) {
-        console.log("Calculator Object or Input is undefined")
-        return "";
-    }
-    else if (calc.operand === undefined || calc.operand in [undefined, NaN, null]) {
-        console.log("Operand is undefined")
-        calc.operand = "0";
-    }
-
-    if (operators.includes(input)) {
-        console.log("Input is Operator")
-        if (calc.operand1 === undefined || [undefined,NaN, null].includes(calc.operand1)) {
-            calc.operand1 = calc.operand;
-            calc.mainDisplay = [calc.operand1, input].join(" ");
-            calc.operand = "0";
-        }
-        else if (calc.operand1 !== undefined || ![undefined,NaN, null].includes(calc.operand1) && calc.operand !== undefined) {
-            calc.operand2 = calc.operand;
-            calc.perform_operation(calc.operand1, calc.operand2, calc.operator);
-            calc.operand1 = calc.mainDisplay;
-            if(input != "=")
-                calc.topDisplay = [calc.operand1, input, calc.operand2, " = "].join(" ");
-            calc.operand2 = "0";
-        }
-        calc.operator = input;
-        calc.display();
-        calc.operand = "0";
-        return;
-    }
-    else if (calc.operand.includes(".") || input==".") {
-        console.log("Input is Float")
-        calc.operand = calc.operand.concat(input)
-    }
-    else {
-        console.log("Input is Integer")
-        calc.operand = parseInt(calc.operand) * 10 + parseInt(input);
-        calc.operand = calc.operand.toString();
-        console.log("Operand is: ", calc.operand);
-    }
-
-    calc.display();
-}
+let rejection = [undefined, NaN, null];
+let operators = ["=", "+", "-", "x", "/", "CE", "AC"];
 
 let calc = new Calculator();
-
-let operators = ["=", "+", "-", "x", "/", "AC", "CE"];
 
 let innerHTML_Map = {
     "op0": 0,
@@ -153,21 +115,128 @@ function_Map["op="] = () => display_2(calc, "=");
 function_Map["opAC"] = () => display_2(calc, "AC");
 function_Map["opCE"] = () => display_2(calc, "CE");
 
-function myFunction() {
-    console.log("ohh yeah");
-    console.log(this);
+function check(input) {
+    return input === undefined || rejection.includes(input);
+}
+
+function toggleAC_CE(switct_to_CE) {
+    if(switct_to_CE) {
+        console.log("\t Now Working as CE");
+        document.getElementById("reset").classList.add('opCE');
+        document.getElementById("reset").classList.remove('opAC');
+        document.getElementById("reset").innerHTML = 'CE';
+        document.getElementById("reset").onclick = function_Map["opCE"]; 
+    }
+    else {
+        console.log("\t Now Working as AC");
+        document.getElementById("reset").classList.add('opAC');
+        document.getElementById("reset").classList.remove('opCE');
+        document.getElementById("reset").innerHTML = 'AC';
+        document.getElementById("reset").onclick = function_Map["opAC"]; 
+    }
+}
+
+function display_2(calc, input) {
+    if(check(calc.queue)) {
+        calc.queue = ["0"];
+    }
+    if (operators.includes(input)) {
+        // Push Operator to calc.queue and its check with previous element.
+        if(input == operators[operators.length - 1]) { // ALL CLEAR
+            calc.reset();
+            calc.mainDisplay = "0";
+            calc.mainDisplay = calc.queue.join(" ");
+            calc.display();
+            toggleAC_CE(true);  // Making button to work as CE 
+            return;
+        }
+        if(!check(calc.result)){
+            calc.result = undefined;
+            toggleAC_CE(true);  // Making button to work as CE 
+        }
+        if(input == operators[operators.length - 2]) { // CLEAR ENTRY
+            if(!check(calc.queue) && calc.queue.length > 0) {
+                lastElement = calc.queue.pop();
+                if( !["Infinity", "NaN", "Error"].includes(lastElement) && lastElement.length > 1){
+                    lastElement = lastElement.substring(0, lastElement.length - 1);
+                    calc.queue.push(lastElement);
+                }
+            }
+            if(calc.queue.length == 0) {
+                calc.queue.push("0");
+            }
+            calc.mainDisplay = calc.queue.join(" ");
+            calc.topDisplay = "";
+            calc.display();
+            return;
+        }
+        var lastElement = "0";
+        toggleAC_CE(true);  // Making button to work as CE 
+        if(calc.queue.length > 0) {
+            lastElement = calc.queue[calc.queue.length - 1];
+        }
+        if(operators.includes(lastElement)) { // Replace previous operator with current operator
+            lastElement = calc.queue.pop();
+        }
+        calc.queue.push(input);
+        calc.mainDisplay = calc.queue.join(" ");
+        if(input == operators[0]) { // input is =
+            calc.result = calc.calculate_operation();
+            calc.mainDisplay = calc.result;
+            if(calc.queue.length == 1) {
+                calc.topDisplay = "";
+            }
+            else {
+                calc.topDisplay = calc.queue.join(" ");
+            }
+            calc.queue = [calc.result];
+            toggleAC_CE(true);  // Making button to work as AC
+        }
+    }
+    else {
+        toggleAC_CE(true);  // Making button to work as CE
+        var lastElement = "0";
+        if(calc.queue.length > 0 && !operators.includes(calc.queue[calc.queue.length - 1])){
+            lastElement = calc.queue.pop();
+            if(!check(calc.result) && calc.result == lastElement){
+                calc.result = undefined;
+                calc.queue = [];
+                lastElement = "0";
+            }
+        }
+        if(lastElement.includes(".")) {
+            if(input != ".") {
+                calc.queue.push(lastElement.concat(input));
+            }
+            else {
+                calc.queue.push(lastElement);
+            }
+        }
+        else if(input == ".") {
+            calc.queue.push(lastElement.concat(input));
+        }
+        else {
+            calc.queue.push(parseFloat(lastElement.concat(input)).toString());
+        }
+        calc.mainDisplay = calc.queue.join(" ");
+    }
+    calc.display();
 }
 
 var buttons;
 window.onload = (event) => {
     buttons = document.getElementsByTagName("button");
-    console.log("op1", function_Map["op1"])
     for (var i = 0 ; i < buttons.length; i++) {
         let key = buttons[i].classList[buttons[i].classList.length - 1];
         buttons[i].innerHTML = innerHTML_Map[key];
+        if(["opCE", "opAC"].includes(key)) {
+            continue;
+        }
         buttons[i].addEventListener("click", function_Map[key]); 
     }
+    toggleAC_CE(true);  // Making button to work as CE
     console.log("All Buttons Loaded!!");
+    calc.display();
 };
 
 
